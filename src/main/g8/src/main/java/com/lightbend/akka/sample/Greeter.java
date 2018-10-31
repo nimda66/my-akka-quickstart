@@ -39,10 +39,10 @@ public class Greeter extends AbstractActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(WhoToGreet.class, wtg -> {
-          this.greeting = message + ", " + wtg.who;
+        .match(WhoToGreet.class, whoToGreet -> {
+          this.greeting = message + ", " + whoToGreet.who;
         })
-        .match(Greet.class, x -> {
+        .match(Greet.class, greet -> {
           //#greeter-send-message
           printerActor.tell(new Greeting(greeting), getSelf());
           //#greeter-send-message
