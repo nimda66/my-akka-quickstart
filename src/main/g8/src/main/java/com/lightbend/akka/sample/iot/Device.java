@@ -7,6 +7,9 @@ import akka.event.LoggingAdapter;
 
 import java.util.Optional;
 
+/**
+ * https://doc.akka.io/docs/akka/2.5.9/guide/tutorial_4.html
+ */
 public class Device extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
