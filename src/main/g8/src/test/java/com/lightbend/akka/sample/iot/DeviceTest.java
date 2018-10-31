@@ -44,4 +44,31 @@ public class DeviceTest {
         assertEquals(4L, response2.requestId);
         assertEquals(Optional.of(55.0), response2.value);
     }
+
+
+    @Test
+    public void testReplyToRegistrationRequests() {
+
+        ActorSystem system = ActorSystem.create("test");
+        TestKit probe = new TestKit(system);
+        ActorRef deviceActor = system.actorOf(Device.props("group", "device"));
+
+        deviceActor.tell(new DeviceManager.RequestTrackDevice("group", "device"), probe.getRef());
+        probe.expectMsgClass(DeviceManager.DeviceRegistered.class);
+        assertEquals(deviceActor, probe.getLastSender());
+    }
+
+    @Test
+    public void testIgnoreWrongRegistrationRequests() {
+
+        ActorSystem system = ActorSystem.create("test");
+        TestKit probe = new TestKit(system);
+        ActorRef deviceActor = system.actorOf(Device.props("group", "device"));
+
+        deviceActor.tell(new DeviceManager.RequestTrackDevice("wrongGroup", "device"), probe.getRef());
+        probe.expectNoMsg();
+
+        deviceActor.tell(new DeviceManager.RequestTrackDevice("group", "wrongDevice"), probe.getRef());
+        probe.expectNoMsg();
+    }
 }
