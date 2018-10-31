@@ -1,18 +1,16 @@
 package com.lightbend.akka.sample;
 
-import static org.junit.Assert.assertEquals;
-
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.testkit.javadsl.TestKit;
+import com.lightbend.akka.sample.Greeter.Greet;
+import com.lightbend.akka.sample.Greeter.WhoToGreet;
+import com.lightbend.akka.sample.Printer.Greeting;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.lightbend.akka.sample.Greeter.Greet;
-import com.lightbend.akka.sample.Greeter.WhoToGreet;
-import com.lightbend.akka.sample.Printer.Greeting;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.testkit.javadsl.TestKit;
+import static org.junit.Assert.assertEquals;
 
 public class AkkaQuickstartTest {
     static ActorSystem system;

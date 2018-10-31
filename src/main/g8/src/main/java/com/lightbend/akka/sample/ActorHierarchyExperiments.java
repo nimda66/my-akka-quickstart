@@ -1,4 +1,4 @@
-package com.lightbend.akka.sample2;
+package com.lightbend.akka.sample;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -18,6 +18,7 @@ class PrintMyActorRefActor extends AbstractActor {
 }
 
 public class ActorHierarchyExperiments {
+
     public static void main(String[] args) throws java.io.IOException {
         ActorSystem system = ActorSystem.create("testSystem");
 
