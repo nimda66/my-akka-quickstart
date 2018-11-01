@@ -45,9 +45,9 @@ public class DeviceManager extends AbstractActor {
 
     private void onTrackDevice(RequestTrackDevice trackMsg) {
         String groupId = trackMsg.groupId;
-        ActorRef ref = groupIdToActor.get(groupId);
-        if (ref != null) {
-            ref.forward(trackMsg, getContext());
+        ActorRef actorRef = groupIdToActor.get(groupId);
+        if (actorRef != null) {
+            actorRef.forward(trackMsg, getContext());
         } else {
             log.info("Creating device group actor for {}", groupId);
             ActorRef groupActor = getContext().actorOf(DeviceGroup.props(groupId), "group-" + groupId);
@@ -58,8 +58,8 @@ public class DeviceManager extends AbstractActor {
         }
     }
 
-    private void onTerminated(Terminated t) {
-        ActorRef groupActor = t.getActor();
+    private void onTerminated(Terminated terminated) {
+        ActorRef groupActor = terminated.getActor();
         String groupId = actorToGroupId.get(groupActor);
         log.info("Device group actor for {} has been terminated", groupId);
         actorToGroupId.remove(groupActor);
@@ -72,49 +72,6 @@ public class DeviceManager extends AbstractActor {
                 .match(RequestTrackDevice.class, this::onTrackDevice)
                 .match(Terminated.class, this::onTerminated)
                 .build();
-    }
-
-    //###################################
-    public interface TemperatureReading {
-    }
-
-    public static final class RequestAllTemperatures {
-
-        final long requestId;
-
-        public RequestAllTemperatures(long requestId) {
-            this.requestId = requestId;
-        }
-
-    }
-
-    public static final class RespondAllTemperatures {
-        final long requestId;
-
-        final Map<String, TemperatureReading> temperatures;
-
-        public RespondAllTemperatures(long requestId, Map<String, TemperatureReading> temperatures) {
-            this.requestId = requestId;
-            this.temperatures = temperatures;
-        }
-
-    }
-
-    public static final class Temperature implements TemperatureReading {
-        public final double value;
-
-        public Temperature(double value) {
-            this.value = value;
-        }
-    }
-
-    public static final class TemperatureNotAvailable implements TemperatureReading {
-    }
-
-    public static final class DeviceNotAvailable implements TemperatureReading {
-    }
-
-    public static final class DeviceTimedOut implements TemperatureReading {
     }
 
 

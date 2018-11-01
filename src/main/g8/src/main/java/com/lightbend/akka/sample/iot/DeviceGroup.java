@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,5 +95,53 @@ public class DeviceGroup extends AbstractActor {
                 .match(RequestDeviceList.class, this::onDeviceList)
                 .match(Terminated.class, this::onTerminated)
                 .build();
+    }
+
+    public static final class RequestAllTemperatures {
+        final long requestId;
+
+        public RequestAllTemperatures(long requestId) {
+            this.requestId = requestId;
+        }
+    }
+
+    public static final class RespondAllTemperatures {
+        final long requestId;
+        final Map<String, TemperatureReading> temperatures;
+
+        public RespondAllTemperatures(long requestId, Map<String, TemperatureReading> temperatures) {
+            this.requestId = requestId;
+            this.temperatures = temperatures;
+        }
+    }
+
+    public interface TemperatureReading {
+        double getValue();
+    }
+
+    @Data
+    public static final class Temperature implements TemperatureReading {
+        private final double value;
+    }
+
+    public static final class TemperatureNotAvailable implements TemperatureReading {
+        @Override
+        public double getValue() {
+            return -1;
+        }
+    }
+
+    public static final class DeviceNotAvailable implements TemperatureReading {
+        @Override
+        public double getValue() {
+            return -1;
+        }
+    }
+
+    public static final class DeviceTimedOut implements TemperatureReading {
+        @Override
+        public double getValue() {
+            return -1;
+        }
     }
 }
