@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.testkit.javadsl.TestKit;
+import com.lightbend.akka.sample.iot.DeviceGroup.RequestDeviceList;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -137,7 +138,7 @@ public class DeviceTest {
         groupActor.tell(new DeviceManager.RequestTrackDevice("group", "device2"), probe.getRef());
         probe.expectMsgClass(DeviceManager.DeviceRegistered.class);
 
-        groupActor.tell(new DeviceGroup.RequestDeviceList(0L), probe.getRef());
+        groupActor.tell(new RequestDeviceList(0L), probe.getRef());
         DeviceGroup.ReplyDeviceList reply = probe.expectMsgClass(DeviceGroup.ReplyDeviceList.class);
         assertEquals(0L, reply.requestId);
         assertEquals(Stream.of("device1", "device2").collect(Collectors.toSet()), reply.ids);
@@ -156,7 +157,7 @@ public class DeviceTest {
         groupActor.tell(new DeviceManager.RequestTrackDevice("group", "device2"), probe.getRef());
         probe.expectMsgClass(DeviceManager.DeviceRegistered.class);
 
-        groupActor.tell(new DeviceGroup.RequestDeviceList(0L), probe.getRef());
+        groupActor.tell(new RequestDeviceList(0L), probe.getRef());
         DeviceGroup.ReplyDeviceList reply = probe.expectMsgClass(DeviceGroup.ReplyDeviceList.class);
         assertEquals(0L, reply.requestId);
         assertEquals(Stream.of("device1", "device2").collect(Collectors.toSet()), reply.ids);
@@ -168,7 +169,7 @@ public class DeviceTest {
         // using awaitAssert to retry because it might take longer for the groupActor
         // to see the Terminated, that order is undefined
         probe.awaitAssert(() -> {
-            groupActor.tell(new DeviceGroup.RequestDeviceList(1L), probe.getRef());
+            groupActor.tell(new RequestDeviceList(1L), probe.getRef());
             DeviceGroup.ReplyDeviceList r =
                     probe.expectMsgClass(DeviceGroup.ReplyDeviceList.class);
             assertEquals(1L, r.requestId);
