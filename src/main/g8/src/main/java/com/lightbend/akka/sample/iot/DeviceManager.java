@@ -74,4 +74,48 @@ public class DeviceManager extends AbstractActor {
                 .build();
     }
 
+    //###################################
+    public interface TemperatureReading {
+    }
+
+    public static final class RequestAllTemperatures {
+
+        final long requestId;
+
+        public RequestAllTemperatures(long requestId) {
+            this.requestId = requestId;
+        }
+
+    }
+
+    public static final class RespondAllTemperatures {
+        final long requestId;
+
+        final Map<String, TemperatureReading> temperatures;
+
+        public RespondAllTemperatures(long requestId, Map<String, TemperatureReading> temperatures) {
+            this.requestId = requestId;
+            this.temperatures = temperatures;
+        }
+
+    }
+
+    public static final class Temperature implements TemperatureReading {
+        public final double value;
+
+        public Temperature(double value) {
+            this.value = value;
+        }
+    }
+
+    public static final class TemperatureNotAvailable implements TemperatureReading {
+    }
+
+    public static final class DeviceNotAvailable implements TemperatureReading {
+    }
+
+    public static final class DeviceTimedOut implements TemperatureReading {
+    }
+
+
 }
