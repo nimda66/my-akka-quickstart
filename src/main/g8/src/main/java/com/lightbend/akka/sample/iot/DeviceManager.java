@@ -11,27 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DeviceManager extends AbstractActor {
+    final Map<String, ActorRef> groupIdToActor = new HashMap<>();
+    final Map<ActorRef, String> actorToGroupId = new HashMap<>();
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     public static Props props() {
         return Props.create(DeviceManager.class);
     }
-
-    public static final class RequestTrackDevice {
-        public final String groupId;
-        public final String deviceId;
-
-        public RequestTrackDevice(String groupId, String deviceId) {
-            this.groupId = groupId;
-            this.deviceId = deviceId;
-        }
-    }
-
-    public static final class DeviceRegistered {
-    }
-
-    final Map<String, ActorRef> groupIdToActor = new HashMap<>();
-    final Map<ActorRef, String> actorToGroupId = new HashMap<>();
 
     @Override
     public void preStart() {
@@ -72,6 +58,19 @@ public class DeviceManager extends AbstractActor {
                 .match(RequestTrackDevice.class, this::onTrackDevice)
                 .match(Terminated.class, this::onTerminated)
                 .build();
+    }
+
+    public static final class RequestTrackDevice {
+        public final String groupId;
+        public final String deviceId;
+
+        public RequestTrackDevice(String groupId, String deviceId) {
+            this.groupId = groupId;
+            this.deviceId = deviceId;
+        }
+    }
+
+    public static final class DeviceRegistered {
     }
 
 

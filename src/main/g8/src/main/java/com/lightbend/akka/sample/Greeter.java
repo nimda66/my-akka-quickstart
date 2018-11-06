@@ -7,9 +7,31 @@ import com.lightbend.akka.sample.Printer.Greeting;
 
 //#greeter-messages
 public class Greeter extends AbstractActor {
+    private final String message;
+    private final ActorRef printerActor;
+    private String greeting = "";
+    //#greeter-messages
+
+    public Greeter(String message, ActorRef printerActor) {
+        this.message = message;
+        this.printerActor = printerActor;
+    }
+
     //#greeter-messages
     static public Props props(String message, ActorRef printerActor) {
-        return Props.create(Greeter.class, () -> new Greeter(message, printerActor));
+        return Props.create(Greeter.class, () -> new Greeter("Greeter: " + message, printerActor));
+    }
+
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(WhoToGreet.class, whoToGreet -> greeting = message + ", " + whoToGreet.who)
+                .match(Greet.class, greet -> {
+                    //#greeter-send-message
+                    printerActor.tell(new Greeting(greeting), getSelf());
+                    //#greeter-send-message
+                })
+                .build();
     }
 
     //#greeter-messages
@@ -24,30 +46,6 @@ public class Greeter extends AbstractActor {
     static public class Greet {
         public Greet() {
         }
-    }
-    //#greeter-messages
-
-    private final String message;
-    private final ActorRef printerActor;
-    private String greeting = "";
-
-    public Greeter(String message, ActorRef printerActor) {
-        this.message = message;
-        this.printerActor = printerActor;
-    }
-
-    @Override
-    public Receive createReceive() {
-        return receiveBuilder()
-                .match(WhoToGreet.class, whoToGreet -> {
-                    greeting = message + ", " + whoToGreet.who;
-                })
-                .match(Greet.class, greet -> {
-                    //#greeter-send-message
-                    printerActor.tell(new Greeting(greeting), getSelf());
-                    //#greeter-send-message
-                })
-                .build();
     }
 //#greeter-messages
 }

@@ -8,20 +8,20 @@ import com.lightbend.akka.sample.Greeter.WhoToGreet;
 import java.io.IOException;
 
 public class AkkaQuickstart {
+
     public static void main(String[] args) {
 
-        ActorSystem system = ActorSystem.create("helloakka");
+        ActorSystem system = ActorSystem.create("guardian");
         try {
             //#create-actors
-            ActorRef printerActor =
-                    system.actorOf(Printer.props(), "printerActor");
-            ActorRef howdyGreeter =
-                    system.actorOf(Greeter.props("Howdy", printerActor), "howdyGreeter");
-            ActorRef helloGreeter =
-                    system.actorOf(Greeter.props("Hello", printerActor), "helloGreeter");
-            ActorRef goodDayGreeter =
-                    system.actorOf(Greeter.props("Good day", printerActor), "goodDayGreeter");
-            //#create-actors
+            ActorRef printerActor = system.actorOf(Printer.props(),
+                                                   "printerActor");
+            ActorRef howdyGreeter = system.actorOf(Greeter.props("Howdy", printerActor),
+                                                   "howdyGreeter");
+            ActorRef helloGreeter = system.actorOf(Greeter.props("Hello", printerActor),
+                                                   "helloGreeter");
+            ActorRef goodDayGreeter = system.actorOf(Greeter.props("Good day", printerActor),
+                                                     "goodDayGreeter");
 
             //#main-send-messages
             howdyGreeter.tell(new WhoToGreet("Akka"), ActorRef.noSender());
@@ -35,11 +35,11 @@ public class AkkaQuickstart {
 
             goodDayGreeter.tell(new WhoToGreet("Play"), ActorRef.noSender());
             goodDayGreeter.tell(new Greet(), ActorRef.noSender());
-            //#main-send-messages
 
             System.out.println(">>> Press ENTER to exit <<<");
             System.in.read();
         } catch (IOException ioe) {
+            System.out.println("IOException: " + ioe.getMessage());
         } finally {
             system.terminate();
         }

@@ -11,11 +11,10 @@ import java.util.Optional;
  * https://doc.akka.io/docs/akka/2.5.9/guide/tutorial_4.html
  */
 public class Device extends AbstractActor {
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-
     final String groupId;
-
     final String deviceId;
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+    Optional<Double> lastTemperatureReading = Optional.empty();
 
     public Device(String groupId, String deviceId) {
         this.groupId = groupId;
@@ -24,6 +23,40 @@ public class Device extends AbstractActor {
 
     public static Props props(String groupId, String deviceId) {
         return Props.create(Device.class, groupId, deviceId);
+    }
+
+    @Override
+    public void preStart() {
+        log.info("Device actor {}-{} started", groupId, deviceId);
+    }
+
+    @Override
+    public void postStop() {
+        log.info("Device actor {}-{} stopped", groupId, deviceId);
+    }
+
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(RequestTrackDevice.class, r -> {
+                    if (groupId.equals(r.groupId) && deviceId.equals(r.deviceId)) {
+                        getSender().tell(new DeviceRegistered(), getSelf());
+                    } else {
+                        log.warning(
+                                "Ignoring TrackDevice request for {}-{}.This actor is responsible for {}-{}.",
+                                r.groupId, r.deviceId, groupId, deviceId
+                        );
+                    }
+                })
+                .match(RecordTemperature.class, r -> {
+                    log.info("Recorded temperature reading {} with {}", r.value, r.requestId);
+                    lastTemperatureReading = Optional.of(r.value);
+                    getSender().tell(new TemperatureRecorded(r.requestId), getSelf());
+                })
+                .match(ReadTemperature.class, r -> {
+                    getSender().tell(new RespondTemperature(r.requestId, lastTemperatureReading), getSelf());
+                })
+                .build();
     }
 
     public static final class RecordTemperature {
@@ -60,41 +93,5 @@ public class Device extends AbstractActor {
             this.requestId = requestId;
             this.value = value;
         }
-    }
-
-    Optional<Double> lastTemperatureReading = Optional.empty();
-
-    @Override
-    public void preStart() {
-        log.info("Device actor {}-{} started", groupId, deviceId);
-    }
-
-    @Override
-    public void postStop() {
-        log.info("Device actor {}-{} stopped", groupId, deviceId);
-    }
-
-    @Override
-    public Receive createReceive() {
-        return receiveBuilder()
-                .match(RequestTrackDevice.class, r -> {
-                    if (groupId.equals(r.groupId) && deviceId.equals(r.deviceId)) {
-                        getSender().tell(new DeviceRegistered(), getSelf());
-                    } else {
-                        log.warning(
-                                "Ignoring TrackDevice request for {}-{}.This actor is responsible for {}-{}.",
-                                r.groupId, r.deviceId, groupId, deviceId
-                        );
-                    }
-                })
-                .match(RecordTemperature.class, r -> {
-                    log.info("Recorded temperature reading {} with {}", r.value, r.requestId);
-                    lastTemperatureReading = Optional.of(r.value);
-                    getSender().tell(new TemperatureRecorded(r.requestId), getSelf());
-                })
-                .match(ReadTemperature.class, r -> {
-                    getSender().tell(new RespondTemperature(r.requestId, lastTemperatureReading), getSelf());
-                })
-                .build();
     }
 }

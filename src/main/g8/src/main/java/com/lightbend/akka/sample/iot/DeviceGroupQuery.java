@@ -14,15 +14,10 @@ import java.util.Set;
 
 public class DeviceGroupQuery extends AbstractActor {
 
-    public static final class CollectionTimeout {
-    }
-
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-
     final Map<ActorRef, String> actorToDeviceId;
     final long requestId;
     final ActorRef requester;
-
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     Cancellable queryTimeoutTimer;
 
     public DeviceGroupQuery(Map<ActorRef, String> actorToDeviceId, long requestId, ActorRef requester, FiniteDuration timeout) {
@@ -102,5 +97,8 @@ public class DeviceGroupQuery extends AbstractActor {
         } else {
             getContext().become(waitingForReplies(newRepliesSoFar, newStillWaiting));
         }
+    }
+
+    public static final class CollectionTimeout {
     }
 }

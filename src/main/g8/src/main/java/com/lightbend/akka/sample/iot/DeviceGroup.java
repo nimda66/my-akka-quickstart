@@ -15,11 +15,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class DeviceGroup extends AbstractActor {
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-
     final String groupId;
     final Map<String, ActorRef> deviceIdToActor = new HashMap<>();
     final Map<ActorRef, String> actorToDeviceId = new HashMap<>();
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     public DeviceGroup(String groupId) {
         this.groupId = groupId;
@@ -27,24 +26,6 @@ public class DeviceGroup extends AbstractActor {
 
     public static Props props(String groupId) {
         return Props.create(DeviceGroup.class, groupId);
-    }
-
-    public static final class RequestDeviceList {
-        final long requestId;
-
-        public RequestDeviceList(long requestId) {
-            this.requestId = requestId;
-        }
-    }
-
-    public static final class ReplyDeviceList {
-        final long requestId;
-        final Set<String> ids;
-
-        public ReplyDeviceList(long requestId, Set<String> ids) {
-            this.requestId = requestId;
-            this.ids = ids;
-        }
     }
 
     @Override
@@ -96,7 +77,6 @@ public class DeviceGroup extends AbstractActor {
                                                     new FiniteDuration(3, TimeUnit.SECONDS)));
     }
 
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
@@ -105,6 +85,28 @@ public class DeviceGroup extends AbstractActor {
                 .match(Terminated.class, this::onTerminated)
                 .match(RequestAllTemperatures.class, this::onAllTemperatures)
                 .build();
+    }
+
+    public interface TemperatureReading {
+        double getValue();
+    }
+
+    public static final class RequestDeviceList {
+        final long requestId;
+
+        public RequestDeviceList(long requestId) {
+            this.requestId = requestId;
+        }
+    }
+
+    public static final class ReplyDeviceList {
+        final long requestId;
+        final Set<String> ids;
+
+        public ReplyDeviceList(long requestId, Set<String> ids) {
+            this.requestId = requestId;
+            this.ids = ids;
+        }
     }
 
     @Data
@@ -116,10 +118,6 @@ public class DeviceGroup extends AbstractActor {
     public static final class RespondAllTemperatures {
         final long requestId;
         final Map<String, TemperatureReading> temperatures;
-    }
-
-    public interface TemperatureReading {
-        double getValue();
     }
 
     @Data
